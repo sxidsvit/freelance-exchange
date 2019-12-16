@@ -33,25 +33,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
   formCustomer.addEventListener('submit', () => {
     event.preventDefault()
-    // console.log('formCustomer.elements: ', formCustomer.elements);
-    const elementsArray = [...formCustomer.elements]
-    // console.log('elementsArray: ', elementsArray);
-    console.dir(elementsArray[0]);
+
+    // первый вариан фильтрации (без ипользования метода filter() )
+    // const obj = {}
+    // for (const elem of formCustomer.elements) {
+    //   if ((elem.tagName === 'INPUT' && elem.type !== 'radio') ||
+    //     (elem.type === 'radio' && elem.checked) || elem.tagName === 'TEXTAREA') {
+
+    //     obj[elem.name] = elem.value
+
+    //   }
+    //   if (elem.type !== 'radio') {
+    //     elem.value = ''
+    //   }
+    // }
+    // orders.push(obj)
+
+    // второй варианn: оператор spread, фильтрация с ипользованием метода filter(), ресет формы 
+
+    const fieldsFilter = (elem) => {
+      const rez = (elem.tagName === 'INPUT' && elem.type !== 'radio')
+        || (elem.type === 'radio' && elem.checked)
+        || (elem.tagName === 'TEXTAREA')
+      return rez
+    }
+    const formElements = [...formCustomer.elements].filter(fieldsFilter)
 
     const obj = {}
-    for (const elem of formCustomer.elements) {
-      if ((elem.tagName === 'INPUT' && elem.type !== 'radio') ||
-        (elem.type === 'radio' && elem.checked) || elem.tagName === 'TEXTAREA') {
+    formElements.forEach(elem => obj[elem.name] = elem.value
+    );
 
-        obj[elem.name] = elem.value
-
-      }
-      if (elem.type !== 'radio') {
-        elem.value = ''
-      }
-    }
     orders.push(obj)
     console.log('orders: ', orders);
+
+    formCustomer.reset() // очистка формы
+
   })
 
 
