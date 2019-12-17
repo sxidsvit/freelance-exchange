@@ -10,10 +10,65 @@ document.addEventListener('DOMContentLoaded', () => {
   const blockChoice = document.getElementById('block-choice')
   const btnExit = document.getElementById('btn-exit')
   const formCustomer = document.getElementById('form-customer')
+  const ordersTable = document.getElementById('orders')
+  const modalOrder = document.getElementById('order_read')
+  const modalOrderActive = document.getElementById('order_active')
 
   const orders = []
 
-  // назначаем обработчики
+  // рендеринг строк таблицы со всеми заказами 
+  const renderOrders = () => {
+    ordersTable.textContent = ''
+    orders.forEach((order, i) => {
+
+      ordersTable.innerHTML += `
+                <tr class="order taken" data-number-order="${i}">
+                  <td>${i + 1}</td>
+                  <td>${order.title}</td>
+                  <td class="${order.currency}"></td>
+                  <td>${order.deadline}</td>
+                </tr>
+      `
+    })
+  }
+
+  // модальные окна
+  const openModal = (numberOrder) => {
+    // console.log('numberOrder: ', numberOrder);
+    const order = orders[numberOrder]
+    // в зависимости от стадии  обработки заказа
+    // открываем свое модальное окно 
+    const modal = order.active ? modalOrderActive : modalOrder
+
+    // всю информацию о заказе, которая есть в модальном окне, сохраняем в переменные
+    const firstNameBlock = document.querySelector('.firstName')
+    const titleBlock = document.querySelector('.modal-title')
+    const emailBlock = document.querySelector('.email')
+    const descriptionBlock = document.querySelector('.description')
+    const deadlineBlock = document.querySelector('.deadline')
+    const currencyBlock = document.querySelector('.currency_img')
+    const countBlock = document.querySelector('.count')
+    const phoneBlock = document.querySelector('.phone')
+
+    firstNameBlock.textContent = order.title  // а как это сделать декомпозицией ?
+
+    modal.style.display = "block"
+
+  }
+
+  // назначаем обработчик клика по выбранному заказу
+  ordersTable.addEventListener('click', (event) => {
+    const target = event.target
+    const targetOrder = target.closest('.order')
+    if (targetOrder) {
+      openModal(targetOrder.dataset.numberOrder)
+    }
+
+    console.log('Заказ: ', orders[targetOrder.dataset.numberOrder])
+
+  })
+
+  // назначаем обработчики клика по кнопкам 
   customer.addEventListener('click', () => {
     blockChoice.style.display = 'none'
     blockCustomer.style.display = 'block'
@@ -21,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
   })
   freelancer.addEventListener('click', () => {
     blockChoice.style.display = 'none'
+    renderOrders()
     blockFreelance.style.display = 'block'
     btnExit.style.display = ' block'
   })
@@ -60,18 +116,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const formElements = [...formCustomer.elements].filter(fieldsFilter)
 
     const obj = {}
-    formElements.forEach(elem => obj[elem.name] = elem.value
-    );
+    formElements.forEach(elem => obj[elem.name] = elem.value);
 
     orders.push(obj)
-    console.log('orders: ', orders);
 
     formCustomer.reset() // очистка формы
 
   })
-
-
-
 
 
 }) // end DOMContentLoaded
