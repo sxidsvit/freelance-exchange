@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const ordersTable = document.getElementById('orders')
   const modalOrder = document.getElementById('order_read')
   const modalOrderActive = document.getElementById('order_active')
+  const modalClose = document.querySelector('.close');
 
   const orders = []
 
@@ -50,22 +51,40 @@ document.addEventListener('DOMContentLoaded', () => {
     const countBlock = document.querySelector('.count')
     const phoneBlock = document.querySelector('.phone')
 
-    firstNameBlock.textContent = order.title  // а как это сделать декомпозицией ?
+    // Извлекаем всю информацию из заказа воспользовавшись его декомпозицией
+    // В дальнейшем, при необходимости это позволит легко менять шаблоны окон и заполнять их нужной информацией
+
+    let { title, firstName, email, description, deadline, currency, amount, phone } = order
+    // console.log('order: ', order);
+
+    titleBlock.textContent = title;
+    firstNameBlock.textContent = firstName;
+    emailBlock.textContent = email;
+    emailBlock.setAttribute('href', `mailto: ${email}`);
+    descriptionBlock.textContent = description;
+    deadlineBlock.textContent = deadline;
+    currencyBlock.classList.add(currency);
+    countBlock.textContent = amount;
+    phoneBlock.textContent = phone;
+    phoneBlock.setAttribute('href', `tel: ${phone}`);
 
     modal.style.display = "block"
-
   }
 
-  // назначаем обработчик клика по выбранному заказу
+  // назначаем обработчик клика по выбранному заказу: открытие модального окна
   ordersTable.addEventListener('click', (event) => {
     const target = event.target
     const targetOrder = target.closest('.order')
     if (targetOrder) {
       openModal(targetOrder.dataset.numberOrder)
     }
+    // console.log('Заказ: ', orders[targetOrder.dataset.numberOrder])
+  })
 
-    console.log('Заказ: ', orders[targetOrder.dataset.numberOrder])
-
+  // назначаем обработчик клика: закрытие текущего модального окна
+  modalClose.addEventListener('click', (event) => {
+    const currentModal = event.target.closest('.modal');
+    currentModal.style.display = 'none';
   })
 
   // назначаем обработчики клика по кнопкам 
@@ -90,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
   formCustomer.addEventListener('submit', () => {
     event.preventDefault()
 
-    // первый вариан фильтрации (без ипользования метода filter() )
+    // первый вариант фильтрации (без ипользования метода filter() )
     // const obj = {}
     // for (const elem of formCustomer.elements) {
     //   if ((elem.tagName === 'INPUT' && elem.type !== 'radio') ||
@@ -105,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // }
     // orders.push(obj)
 
-    // второй варианn: оператор spread, фильтрация с ипользованием метода filter(), ресет формы 
+    // второй вариант: оператор spread, фильтрация с ипользованием метода filter(), ресет формы 
 
     const fieldsFilter = (elem) => {
       const rez = (elem.tagName === 'INPUT' && elem.type !== 'radio')
