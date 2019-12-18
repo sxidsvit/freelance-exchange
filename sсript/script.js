@@ -13,9 +13,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const ordersTable = document.getElementById('orders')
   const modalOrder = document.getElementById('order_read')
   const modalOrderActive = document.getElementById('order_active')
-  const modalClose = document.querySelector('.close');
+  // const modalClose = document.querySelector('.close');
 
-  const orders = []
+  const orders = JSON.parse(localStorage.getItem('freeOrders')) || []
+  console.log('orders: ', orders)
+
+  const toStorage = () => {
+    localStorage.setItem('freeOrders', JSON.stringify(orders))
+  }
+
+  const calcDeadline = (deadline) => {
+    const day = '10 дней'
+    return day
+  }
 
   // рендеринг строк таблицы со всеми заказами 
   const renderOrders = () => {
@@ -23,54 +33,92 @@ document.addEventListener('DOMContentLoaded', () => {
     orders.forEach((order, i) => {
 
       ordersTable.innerHTML += `
-                <tr class="order taken" data-number-order="${i}">
+                <tr class="order ${order.active ? 'taken' : ''}" 
+                  data-number-order="${i}">
                   <td>${i + 1}</td>
                   <td>${order.title}</td>
                   <td class="${order.currency}"></td>
-                  <td>${order.deadline}</td>
+                  <td>${calcDeadline(order.deadline)}</td>
                 </tr>
       `
     })
   }
 
+  const handlerModal = (event) => {
+    const target = event.target // элемен по которуму кликнули
+    const modal = target.closest('.order-modal') // вся модалка
+    console.log('target: ', target);
+    console.log('modal: ', modal);
+
+
+
+    const order = orders[modal.id] // текущий заказ 
+
+    const baseAction = () => {
+      modal.style.display = 'none'
+      toStorage()
+      renderOrders()
+    }
+
+    if (target.closest('.close') || target === modal) {
+      modal.style.display = 'none'
+    }
+
+    if (target.classList.contains('get-order')) {
+      order.active = true
+      baseAction()
+    }
+    // отказываемся от заказа
+    if (target.id === 'capitulation') {
+      order.active = false
+      baseAction()
+    }
+    // удалякм заказ  (НЕ РАБОТАЕТ !!!)
+    if (target.id === 'ready') {
+      orders.splice(orders.indexOf(order), 1)
+      baseAction()
+    }
+  }
+
+
   // модальные окна
   const openModal = (numberOrder) => {
     // console.log('numberOrder: ', numberOrder);
     const order = orders[numberOrder]
-    // в зависимости от стадии  обработки заказа
-    // открываем свое модальное окно 
-    const modal = order.active ? modalOrderActive : modalOrder
-
-    // всю информацию о заказе, которая есть в модальном окне, сохраняем в переменные
-    const firstNameBlock = document.querySelector('.firstName')
-    const titleBlock = document.querySelector('.modal-title')
-    const emailBlock = document.querySelector('.email')
-    const descriptionBlock = document.querySelector('.description')
-    const deadlineBlock = document.querySelector('.deadline')
-    const currencyBlock = document.querySelector('.currency_img')
-    const countBlock = document.querySelector('.count')
-    const phoneBlock = document.querySelector('.phone')
 
     // Извлекаем всю информацию из заказа воспользовавшись его декомпозицией
-    // В дальнейшем, при необходимости это позволит легко менять шаблоны окон и заполнять их нужной информацией
+    const { title, firstName, email, description, deadline, currency, amount, phone, active = false } = order
 
-    const { title, firstName, email, description, deadline, currency, amount, phone } = order
-    // console.log('order: ', order);
+    // в зависимости от стадии  обработки заказа
+    // открываем свое модальное окно 
+    const modal = active ? modalOrderActive : modalOrder
 
+    // всю информацию о заказе, которая есть в модальном окне, сохраняем в переменные
+    const firstNameBlock = modal.querySelector('.firstName')
+    const titleBlock = modal.querySelector('.modal-title')
+    const emailBlock = modal.querySelector('.email')
+    const descriptionBlock = modal.querySelector('.description')
+    const deadlineBlock = modal.querySelector('.deadline')
+    const currencyBlock = modal.querySelector('.currency_img')
+    const countBlock = modal.querySelector('.count')
+    const phoneBlock = modal.querySelector('.phone')
+
+    modal.id = numberOrder
     titleBlock.textContent = title;
     firstNameBlock.textContent = firstName;
     emailBlock.textContent = email;
     // emailBlock.setAttribute('href', `mailto: ${email}`);
-    emailBlock.href = `mailto: ${email}`;
-    descriptionBlock.textContent = description;
-    deadlineBlock.textContent = deadline;
-    currencyBlock.classList.add(currency);
-    countBlock.textContent = amount;
-    phoneBlock.textContent = phone;
-    // phoneBlock.setAttribute('href', `tel: ${phone}`);
-    phoneBlock.href = `tel: ${phone}`;
+    emailBlock.href = `mailto: ${email}`
+    descriptionBlock.textContent = description
+    deadlineBlock.textContent = calcDeadline(deadline)
+    currencyBlock.className = 'currency_img'
+    currencyBlock.classList.add(currency)
+    countBlock.textContent = amount
+    phoneBlock ? phoneBlock.textContent = phone : ''
+    phoneBlock ? phoneBlock.href = `tel: ${phone}` : ''
 
-    modal.style.display = "block"
+    modal.style.display = "flex"
+    modal.addEventListener('click', handlerModal)
   }
 
   // назначаем обработчик клика по выбранному заказу: открытие модального окна
@@ -84,14 +132,15 @@ document.addEventListener('DOMContentLoaded', () => {
   })
 
   // назначаем обработчик клика: закрытие текущего модального окна
-  modalClose.addEventListener('click', (event) => {
-    const currentModal = event.target.closest('.modal')
-    currentModal.style.display = 'none'
-    const currencyImg = currentModal.querySelector('.currency_img')
-    currencyImg.classList = []
-    currencyImg.classList.add('currency_img')
-    // console.log('currencyImg: ', currencyImg)
-  })
+  // modalClose.addEventListener('click', (event) => {
+  //   const currentModal = event.target.closest('.modal')
+  //   currentModal.style.display = 'none'
+  //   const currencyImg = currentModal.querySelector('.currency_img')
+  //   currencyImg.classList = []
+  //   currencyImg.classList.add('currency_img')
+  //   // console.log('currencyImg: ', currencyImg)
+  // })
+
 
   // назначаем обработчики клика по кнопкам 
   customer.addEventListener('click', () => {
@@ -143,9 +192,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const obj = {}
     formElements.forEach(elem => obj[elem.name] = elem.value);
 
+    formCustomer.reset() // очистка формы
+
     orders.push(obj)
 
-    formCustomer.reset() // очистка формы
+    // работаем с LocalStorage
+    toStorage()
+
 
   })
 
