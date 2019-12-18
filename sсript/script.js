@@ -54,19 +54,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // Извлекаем всю информацию из заказа воспользовавшись его декомпозицией
     // В дальнейшем, при необходимости это позволит легко менять шаблоны окон и заполнять их нужной информацией
 
-    let { title, firstName, email, description, deadline, currency, amount, phone } = order
+    const { title, firstName, email, description, deadline, currency, amount, phone } = order
     // console.log('order: ', order);
 
     titleBlock.textContent = title;
     firstNameBlock.textContent = firstName;
     emailBlock.textContent = email;
-    emailBlock.setAttribute('href', `mailto: ${email}`);
+    // emailBlock.setAttribute('href', `mailto: ${email}`);
+    emailBlock.href = `mailto: ${email}`;
     descriptionBlock.textContent = description;
     deadlineBlock.textContent = deadline;
     currencyBlock.classList.add(currency);
     countBlock.textContent = amount;
     phoneBlock.textContent = phone;
-    phoneBlock.setAttribute('href', `tel: ${phone}`);
+    // phoneBlock.setAttribute('href', `tel: ${phone}`);
+    phoneBlock.href = `tel: ${phone}`;
 
     modal.style.display = "block"
   }
@@ -88,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const currencyImg = currentModal.querySelector('.currency_img')
     currencyImg.classList = []
     currencyImg.classList.add('currency_img')
-    console.log('currencyImg: ', currencyImg)
+    // console.log('currencyImg: ', currencyImg)
   })
 
   // назначаем обработчики клика по кнопкам 
