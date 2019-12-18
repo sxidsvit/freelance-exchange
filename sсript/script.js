@@ -83,8 +83,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // назначаем обработчик клика: закрытие текущего модального окна
   modalClose.addEventListener('click', (event) => {
-    const currentModal = event.target.closest('.modal');
-    currentModal.style.display = 'none';
+    const currentModal = event.target.closest('.modal')
+    currentModal.style.display = 'none'
+    const currencyImg = currentModal.querySelector('.currency_img')
+    currencyImg.classList = []
+    currencyImg.classList.add('currency_img')
+    console.log('currencyImg: ', currencyImg)
   })
 
   // назначаем обработчики клика по кнопкам 
