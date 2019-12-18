@@ -15,15 +15,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalOrderActive = document.getElementById('order_active')
   // const modalClose = document.querySelector('.close');
 
+
   const orders = JSON.parse(localStorage.getItem('freeOrders')) || []
   console.log('orders: ', orders)
 
+  // описываем функции 
   const toStorage = () => {
     localStorage.setItem('freeOrders', JSON.stringify(orders))
   }
 
   const calcDeadline = (deadline) => {
-    const day = '10 дней'
+    const deadlineArray = deadline.match(/(\d{4})-(\d{2})-(\d{2})/)
+    const deadLineTime = Date.UTC(deadlineArray[1], deadlineArray[2] - 1, deadlineArray[3])
+    const dateNow = Date.now()
+    // debugger;
+    var day = Math.ceil((deadLineTime - dateNow) / (1000 * 60 * 60 * 24))
+    console.log('До выполнения этого заказа осталось  ', day, ' дней');
     return day
   }
 
@@ -44,36 +51,34 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   }
 
+  // обработчик кликов в модальных окнах
   const handlerModal = (event) => {
-    const target = event.target // элемен по которуму кликнули
+    const target = event.target // элемент, по которуму кликнули
     const modal = target.closest('.order-modal') // вся модалка
-    console.log('target: ', target);
-    console.log('modal: ', modal);
-
-
-
     const order = orders[modal.id] // текущий заказ 
 
+    // создаем функцию, чтобы избежать дублирование кода
     const baseAction = () => {
       modal.style.display = 'none'
-      toStorage()
-      renderOrders()
+      toStorage() // запись заказов в localStorage
+      renderOrders() // обновление таблицы заказов
     }
-
+    // закрываем модальное окно
     if (target.closest('.close') || target === modal) {
       modal.style.display = 'none'
     }
 
+    // подтверждаем выбор заказа
     if (target.classList.contains('get-order')) {
       order.active = true
       baseAction()
     }
-    // отказываемся от заказа
+    // отказываемся от подтверждения выбора заказа
     if (target.id === 'capitulation') {
       order.active = false
       baseAction()
     }
-    // удалякм заказ  (НЕ РАБОТАЕТ !!!)
+    // удаляем заказ 
     if (target.id === 'ready') {
       orders.splice(orders.indexOf(order), 1)
       baseAction()
@@ -88,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Извлекаем всю информацию из заказа воспользовавшись его декомпозицией
     const { title, firstName, email, description, deadline, currency, amount, phone, active = false } = order
+    console.log('deadline: ', deadline);
 
     // в зависимости от стадии  обработки заказа
     // открываем свое модальное окно 
@@ -118,6 +124,8 @@ document.addEventListener('DOMContentLoaded', () => {
     phoneBlock ? phoneBlock.href = `tel: ${phone}` : ''
 
     modal.style.display = "flex"
+
+    // обработчик событий, произошедших внутри модального окна
     modal.addEventListener('click', handlerModal)
   }
 
@@ -128,19 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (targetOrder) {
       openModal(targetOrder.dataset.numberOrder)
     }
-    // console.log('Заказ: ', orders[targetOrder.dataset.numberOrder])
   })
-
-  // назначаем обработчик клика: закрытие текущего модального окна
-  // modalClose.addEventListener('click', (event) => {
-  //   const currentModal = event.target.closest('.modal')
-  //   currentModal.style.display = 'none'
-  //   const currencyImg = currentModal.querySelector('.currency_img')
-  //   currencyImg.classList = []
-  //   currencyImg.classList.add('currency_img')
-  //   // console.log('currencyImg: ', currencyImg)
-  // })
-
 
   // назначаем обработчики клика по кнопкам 
   customer.addEventListener('click', () => {
@@ -194,9 +190,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     formCustomer.reset() // очистка формы
 
-    orders.push(obj)
+    orders.push(obj) // добавляем новый заказ
 
-    // работаем с LocalStorage
+    // запись заказов в localStorage
     toStorage()
 
 
