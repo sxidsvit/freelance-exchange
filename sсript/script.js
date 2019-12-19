@@ -26,11 +26,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const calcDeadline = (deadline) => {
     const deadlineArray = deadline.match(/(\d{4})-(\d{2})-(\d{2})/)
+    // вычисляем количество миллисекунд до дедлана по временной зоне UTC 
     const deadLineTime = Date.UTC(deadlineArray[1], deadlineArray[2] - 1, deadlineArray[3])
+    // вычисляем количество миллисекунд до текущей даты по временной зоне UTC 
     const dateNow = Date.now()
-    // debugger;
-    var day = Math.ceil((deadLineTime - dateNow) / (1000 * 60 * 60 * 24))
-    console.log('До выполнения этого заказа осталось  ', day, ' дней');
+    // находим разность и переводим её в дни
+    var dayNumber = Math.ceil((deadLineTime - dateNow) / (1000 * 60 * 60 * 24))
+    // функция склонения падежей
+    const num2str = (n, textForms) => {
+      n = Math.abs(n) % 100;
+      var n1 = n % 10;
+
+      if (n > 10 && n < 20) { return textForms[2]; }
+      if (n1 > 1 && n1 < 5) { return textForms[1]; }
+      if (n1 == 1) { return textForms[0]; }
+      return textForms[2];
+    }
+    const textForms = ['день', 'дня', 'дней']
+    const textForm = num2str(dayNumber, textForms)
+    const day = `${dayNumber} ${textForm}`
+    // console.log('До выполнения этого заказа осталось  ', day);
     return day
   }
 
