@@ -19,11 +19,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const orders = JSON.parse(localStorage.getItem('freeOrders')) || []
   console.log('orders: ', orders)
 
-  // описываем функции 
+  // ** описываем функции **
+
+  // запись заказов в localStorage
   const toStorage = () => {
     localStorage.setItem('freeOrders', JSON.stringify(orders))
   }
 
+  // склонение падежей
+  const num2str = (n, textForms) => {
+    n = Math.abs(n) % 100;
+    var n1 = n % 10;
+
+    if (n > 10 && n < 20) { return `${n} ${textForms[2]}`; }
+    if (n1 > 1 && n1 < 5) { return `${n} ${textForms[1]}`; }
+    if (n1 == 1) { return `${n} ${textForms[0]}`; }
+    return `${n} ${textForms[2]}`;
+  }
+
+  // вычисление дней до дедлайна
   const calcDeadline = (deadline) => {
     const dateFormat = new Date(deadline)
     // const dateSOString = new Date().toISOString()
@@ -33,22 +47,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // вычисляем количество миллисекунд до текущей даты по временной зоне UTC 
     const dateNow = Date.now()
     // находим разность и переводим её в дни
-    var dayNumber = Math.ceil((deadLineTime - dateNow) / (1000 * 60 * 60 * 24))
-    // функция склонения падежей
-    const num2str = (n, textForms) => {
-      n = Math.abs(n) % 100;
-      var n1 = n % 10;
+    var remaining = (deadLineTime - dateNow) / (1000 * 60 * 60)
 
-      if (n > 10 && n < 20) { return textForms[2]; }
-      if (n1 > 1 && n1 < 5) { return textForms[1]; }
-      if (n1 == 1) { return textForms[0]; }
-      return textForms[2];
+    if (remaining / 24 > 2) {
+      return num2str(Math.floor(remaining / 24), ['день', 'дня', 'дней'])
     }
-    const textForms = ['день', 'дня', 'дней']
-    const textForm = num2str(dayNumber, textForms)
-    const day = `${dayNumber} ${textForm}`
-    // console.log('До выполнения этого заказа осталось  ', day);
-    return day
+    return num2str(Math.floor(remaining), ['час', 'часа', 'часов'])
   }
 
   // рендеринг строк таблицы со всеми заказами 
@@ -68,7 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   }
 
-  // обработчик кликов в модальных окнах
+  // ** обработчик кликов в модальных окнах **
+
   const handlerModal = (event) => {
     const target = event.target // элемент, по которуму кликнули
     const modal = target.closest('.order-modal') // вся модалка
