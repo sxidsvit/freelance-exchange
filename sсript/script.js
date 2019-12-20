@@ -25,6 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const calcDeadline = (deadline) => {
+    const dateFormat = new Date(deadline)
+    // const dateSOString = new Date().toISOString()
     const deadlineArray = deadline.match(/(\d{4})-(\d{2})-(\d{2})/)
     // вычисляем количество миллисекунд до дедлана по временной зоне UTC 
     const deadLineTime = Date.UTC(deadlineArray[1], deadlineArray[2] - 1, deadlineArray[3])
@@ -108,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Извлекаем всю информацию из заказа воспользовавшись его декомпозицией
     const { title, firstName, email, description, deadline, currency, amount, phone, active = false } = order
-    console.log('deadline: ', deadline);
+    // console.log('deadline: ', deadline);
 
     // в зависимости от стадии  обработки заказа
     // открываем свое модальное окно 
@@ -156,9 +158,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // назначаем обработчики клика по кнопкам 
   customer.addEventListener('click', () => {
     blockChoice.style.display = 'none'
+    const toDay = new Date().toISOString().substring(0, 10)
+    // ограничиваем выбор даты в форме
+    document.getElementById('deadline').min = toDay;
     blockCustomer.style.display = 'block'
     btnExit.style.display = ' block'
   })
+
   freelancer.addEventListener('click', () => {
     blockChoice.style.display = 'none'
     renderOrders()
