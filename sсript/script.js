@@ -13,8 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const ordersTable = document.getElementById('orders')
   const modalOrder = document.getElementById('order_read')
   const modalOrderActive = document.getElementById('order_active')
-  // const modalClose = document.querySelector('.close');
-
+  const headTable = document.getElementById('headTable')
 
   const orders = JSON.parse(localStorage.getItem('freeOrders')) || []
   console.log('orders: ', orders)
@@ -150,6 +149,34 @@ document.addEventListener('DOMContentLoaded', () => {
     // обработчик событий, произошедших внутри модального окна
     modal.addEventListener('click', handlerModal)
   }
+
+  // сортировка
+  // # функция сортировки 
+  const sortOrder = (arr, property) => {
+    // console.log(arr);
+    // console.log('property: ', property);
+    arr.sort((a, b) => { return a[property] > b[property] ? 1 : -1 })
+  }
+  // # обработчик клика по сортируемому столбцу
+  headTable.addEventListener('click', (evant) => {
+    const target = event.target
+    if (target.classList.contains('head-sort')) {
+      // debugger
+      if (target.id === 'taskSort') {
+        sortOrder(orders, 'title')
+      }
+
+      if (target.id === 'currencySort') {
+        sortOrder(orders, 'currency')
+      }
+
+      if (target.id === 'deadlineSort') {
+        sortOrder(orders, 'deadline')
+      }
+      toStorage()
+      renderOrders()
+    }
+  })
 
   // назначаем обработчик клика по выбранному заказу: открытие модального окна
   ordersTable.addEventListener('click', (event) => {
